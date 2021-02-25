@@ -155,6 +155,11 @@ service:
 ...
 
 $ cd /opt && helm install elasticsearch elasticsearch -n logs
+
+...
+可能需要等待一会 es状态变成running
+...
+
 $ kubectl get po -n logs -o wide                                # 查看节点所在节点位置
 NAME                                                  READY   STATUS    RESTARTS   AGE    IP             NODE    NOMINATED NODE   READINESS GATES
 elasticsearch-master-0                                1/1     Running   0          153m   10.233.90.17   node1   <none>           <none>
