@@ -1,7 +1,7 @@
 # k8s集群拉取私有仓库(Harbor)镜像教程
 > Harbor仓库搭建请参考：https://github.com/Joker1222/Harbor-Deploy <br>
-> 注:如果harbor服务构建时就制定了默认域名，建议使用域名方式访问harbor，直接使用IP:PORT可能会报错，下面教程harbor域名为harbor.123.com <br>
-> 本教程使用的Harbor仓库IP为10.94.22.240
+> 注:如果harbor服务构建时就指定了默认域名，建议使用域名方式访问harbor，直接使用IP:PORT可能会报错 <br>
+> 本教程使用的Harbor仓库IP为10.94.22.240，域名为harbor.123.com
 
 ## 0.配置所有节点的Hosts
 ```bash
