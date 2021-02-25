@@ -1,2 +1,2 @@
 # Personal-k8s-cfg
-backup my k8s yaml config,and deploy tutorial
+快速搭建kubernetes集群、harbor仓库、EFK日志系统的部署手册!
