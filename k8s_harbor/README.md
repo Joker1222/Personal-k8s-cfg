@@ -3,11 +3,11 @@
 > 注:如果harbor服务构建时就指定了默认域名，建议使用域名方式访问harbor，直接使用IP:PORT可能会报错 <br>
 > 本教程使用的Harbor仓库IP为10.94.22.240，域名为harbor.123.com
 
-## 0.配置所有节点的Hosts
+## 0.配置所有节点的Hosts (注意!master和所有node都需要配置)
 ```bash
 $ echo "10.94.22.240 harbor.123.com" >> /etc/hosts #注:按需换成自己harbor的IP地址
 ```
-## 1.配置所有节点docker访问harbor方式为http 
+## 1.配置所有节点Docker访问harbor方式为http (注意!master和所有node都需要配置)
 ```vim
 $ vim /etc/docker/daemon.json              #debian默认安装的Docker的修改方式 
 {
