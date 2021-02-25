@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-sts
+  namespace: efk
+spec:
+  selector:
+    matchLabels:
+      app: es # has to match .spec.template.metadata.labels
+  serviceName: "elasticsearch-svc"  #声明它属于哪个Headless Service.
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      name: elasticsearch-sts
+      labels:
+        app: es # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.7.0
+        ports:
+        - containerPort: 9200
+          name: es-cli
+        - containerPort: 9300
+          name: es-iner
+        env:
+        - name: discovery.type
+          value: single-node  
+        - name: http.cors.enabled
+          value: "true"
+        - name: http.cors.allow-origin
+          value: "*"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-svc
+  labels:
+    app: elasticsearch-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 9200
+    nodePort: 30920 #对外暴露的访问端口，需要在30000~32727范围内。
+    name: clientport    
+  selector:
+    app: es
