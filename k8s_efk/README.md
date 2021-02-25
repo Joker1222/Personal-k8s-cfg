@@ -200,3 +200,82 @@ $ helm uninstall elasticsearch -n logs
 ```
 
 # 5.利用helm部署flunetd
+
+#### 下载Charts及修改配置
+```bash
+$ cd /opt && wget https://github.com/Joker1222/Personal-k8s-cfg/raw/main/k8s_efk/fluentd.tgz
+
+$ cd /opt && tar zxvf fluentd.tgz
+
+$ vim /opt/fluentd/value.yaml
+...
+elasticsearch:
+  auth:
+    enabled: false
+    user: "yourUser"
+    password: "yourPass"
+  includeTagKey: true
+  setOutputHostEnvVar: true
+  # If setOutputHostEnvVar is false this value is ignored
+  hosts: ["10.94.22.54:30920"]                                # 注: 只需要配置这里的IP和端口是你的es地址即可,确保fluned能正常访问es
+  indexName: "fluentd"
+  logstash:
+    enabled: true
+    prefix: "logstash"
+    prefixSeparator: "-"
+    dateformat: "%Y.%m.%d"
+...
+```
+#### 安装
+```bash
+$ cd /opt && helm install fluentd fluentd -n logs
+```
+
+#### 检查
+```bash
+$ kubectl get po -n logs
+NAME                                                  READY   STATUS    RESTARTS   AGE
+elasticsearch-master-0                                1/1     Running   0          3h
+nfs-storage-nfs-client-provisioner-75959887d5-5gc7b   1/1     Running   0          16h
+flu-fluentd-elasticsearch-pbkfk                       1/1     Running   0          17h
+```
+
+# 6.利用helm部署kibana
+> 参考:https://blog.csdn.net/qq_28540443/article/details/106428346
+#### 下载Chart及修改配置
+```bash
+$ cd /opt && wget https://github.com/Joker1222/Personal-k8s-cfg/raw/main/k8s_efk/kibana.tgz
+
+$ cd /opt && tar zxvf kibana.tgz
+
+$ vim /opt/kibana/value.yaml
+...
+elasticsearchHosts: "http://10.94.22.54:30920"          # 注:这里改成你的es地址
+...
+kibanaConfig:
+  kibana.yml: |
+    i18n.locale: "zh-CN"                                # 注:中文版
+...
+service:
+  type: NodePort                                        # 注:NodePort方式
+  loadBalancerIP: ""
+  port: 5601
+  nodePort: "30901"                                     # 注:同es一样,也使用nodePort来访问
+  labels: {}
+...
+```
+#### 安装
+```bash
+$ cd /opt && helm install kibana kibana -n logs 
+```
+
+#### 检查
+```bash
+$ kubectl get po -n logs
+NAME                                                  READY   STATUS    RESTARTS   AGE
+elasticsearch-master-0                                1/1     Running   0          3h
+kibana-kibana-5f86fbcd65-l6tkc                        1/1     Running   0          175m
+nfs-storage-nfs-client-provisioner-75959887d5-5gc7b   1/1     Running   0          16h
+flu-fluentd-elasticsearch-pbkfk                       1/1     Running   0          17h
+```
+****
