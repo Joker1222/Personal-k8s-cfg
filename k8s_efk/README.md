@@ -91,7 +91,7 @@ NAME              PROVISIONER                                        RECLAIMPOLI
 nfs-storage       cluster.local/nfs-storage-nfs-client-provisioner   Delete          Immediate              true                   16h
 ```
 
-常见问题:https://github.com/kubernetes-retired/external-storage/issues/978
+**常见问题:** https://github.com/kubernetes-retired/external-storage/issues/978
 ```bash
 # 如果nfs-provisioner状态异常,可以desc查看详情
 $ kubectl describe po nfs-storage-nfs-client-provisioner-75959887d5-5gc7b -n logs
@@ -105,5 +105,84 @@ In some cases useful info is found in syslog - try dmesg | tail or so.
 
 原因就是node节点没装nfs-common客户端!!!!
 ```
+**一键卸载(如有需要)**
 
+```bash
+$ helm uninstall nfs-storage -n logs
+```
+
+# 4.利用helm安装elasticsearch
+> 参考:https://blog.csdn.net/qq_28540443/article/details/106428346
+
+```bash
+# 直接从本git库中下载charts,如需获取最新版请自行调用helm pull elasticsearch
+$ cd /opt && wget https://github.com/Joker1222/Personal-k8s-cfg/raw/main/k8s_efk/elasticsearch.tgz
+
+$ cd /opt && tar zxvf elasticsearch.tgz         # 解压
+
+$ vim /opt/elasticsearch/value.yaml             # 修改配置(只展示必要配置)
+...
+replicas: 1                                                     # 注:这里控制es节点数量,本教程采用单节点部署,如需多节点请自行修改并保证集群各节点环境相同
+minimumMasterNodes: 1                                           # 注:这里控制es节点数量,本教程采用单节点部署,如需多节点请自行修改并保证集群各节点环境相同
+clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"   # 注:这行主要是避免单节点部署时卡死(参考问题:https://github.com/elastic/helm-charts/issues/783)
+...
+
+...
+volumeClaimTemplate:    
+  accessModes: [ "ReadWriteOnce" ]
+  storageClassName: "nfs-storage"                               # 注:这里选择我们上面创建好的storageClass动态卷存储即可(注意名称匹配)
+  resources:
+    requests:
+      storage: 100Gi                                            # 注:这里根据自己物理机实际磁盘大小控制容量
+...
+
+...
+protocol: http
+httpPort: 9200                                                  # 注:集群内部接口,一般不用修改
+transportPort: 9300
+
+service:
+  labels: {}
+  labelsHeadless: {}
+  type: NodePort                                                # 注:这里采用NodePort方式访问 即NodeIP:Port
+  nodePort: "30920"                                             # 注:对外暴露的端口,如果es集群无法访问,有可能是端口冲突了(没有报错信息很坑),请确保端口无冲突！
+  annotations: {}
+  httpPortName: http
+  transportPortName: transport
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  externalTrafficPolicy: ""
+...
+
+$ cd /opt && helm install elasticsearch elasticsearch -n logs
+$ kubectl get po -n logs -o wide                                # 查看节点所在节点位置
+NAME                                                  READY   STATUS    RESTARTS   AGE    IP             NODE    NOMINATED NODE   READINESS GATES
+elasticsearch-master-0                                1/1     Running   0          153m   10.233.90.17   node1   <none>           <none>
+nfs-storage-nfs-client-provisioner-75959887d5-5gc7b   1/1     Running   0          16h    10.233.90.16   node1   <none>           <none>
+
+$ kubectl get svc -n logs                                       # 查看svc端口
+NAME                            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                         AGE
+elasticsearch-master            NodePort    10.233.9.3      <none>        9200:30920/TCP,9300:31486/TCP   154m
+elasticsearch-master-headless   ClusterIP   None            <none>        9200/TCP,9300/TCP               154m
+
+# 可以看到es在node1节点,对外暴露的端口是30920,我们可以curl测试下能否访问
+$ curl 10.94.22.54:30920                                        # 注:别忘了这里换成你的node节点IP
+{
+  "name" : "elasticsearch-master-0",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "WOkf9zbKSFyX4yuTk4ApRA",
+  "version" : {
+    "number" : "7.11.1",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "ff17057114c2199c9c1bbecc727003a907c0db7a",
+    "build_date" : "2021-02-15T13:44:09.394032Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.7.0",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
 
