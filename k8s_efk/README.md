@@ -16,7 +16,7 @@
 - master:  IP=10.94.22.240
 - node1: IP=10.94.22.54
 
-# 1.在物理机上安装NFS
+## 1.在物理机上安装NFS
 > 参考:https://www.aikiki.top/hexo/2020/03/17/Debian-10-%E6%90%AD%E5%BB%BA-nfs-%E6%9C%8D%E5%8A%A1%E5%99%A8/
 
 注意: master节点安装NFS-Server,其他全部Node节点务必安装NFS-Common(客户端)，否则storageClass将创建失败！
@@ -40,7 +40,7 @@ Filesystem                       Size  Used Avail Use% Mounted on
 10.94.22.240:/opt/nfs/logs-e...  111G   20G   86G  19% /var/lib/kubelet/...
 $ cd /data/nfs/ && touch test.txt                           # 创建文件测试是否共享成功，此时回到master节点执行ls /data/nfs/应该能看到test.txt
 ```
-# 2.安装helm
+## 2.安装helm
 > 参考:http://www.mydlq.club/article/51/
 
 ```bash
@@ -64,7 +64,7 @@ $ helm repo add  stable     https://kubernetes-charts.storage.googleapis.com
 $ helm repo update
 ```
 
-# 3.利用helm安装nfs-client-provisioner动态存储卷(StorageClass)
+## 3.利用helm安装nfs-client-provisioner动态存储卷(StorageClass)
 > 参考:
 > https://blog.csdn.net/qq_28540443/article/details/106428346
 > https://juejin.cn/post/6912071173413011470
@@ -111,7 +111,7 @@ In some cases useful info is found in syslog - try dmesg | tail or so.
 $ helm uninstall nfs-storage -n logs
 ```
 
-# 4.利用helm安装elasticsearch
+## 4.利用helm安装elasticsearch
 > 参考:https://blog.csdn.net/qq_28540443/article/details/106428346
 
 #### 下载Charts源并修改配置
@@ -199,7 +199,7 @@ $ curl 10.94.22.54:30920
 $ helm uninstall elasticsearch -n logs
 ```
 
-# 5.利用helm部署flunetd
+## 5.利用helm部署flunetd
 
 #### 下载Charts及修改配置
 ```bash
@@ -240,7 +240,7 @@ nfs-storage-nfs-client-provisioner-75959887d5-5gc7b   1/1     Running   0       
 flu-fluentd-elasticsearch-pbkfk                       1/1     Running   0          17h
 ```
 
-# 6.利用helm部署kibana
+## 6.利用helm部署kibana
 > 参考:https://blog.csdn.net/qq_28540443/article/details/106428346
 #### 下载Chart及修改配置
 ```bash
@@ -278,4 +278,47 @@ kibana-kibana-5f86fbcd65-l6tkc                        1/1     Running   0       
 nfs-storage-nfs-client-provisioner-75959887d5-5gc7b   1/1     Running   0          16h
 flu-fluentd-elasticsearch-pbkfk                       1/1     Running   0          17h
 ```
-****
+
+## 7.调试&验证
+> 上述环境全部搭建好后,进入kibana(http://10.94.22.54:30901) # ip地址要根据自己集群kibana位置来填写哦 :)
+
+#### 打开浏览器，进入开发者工具
+![](../png/kibana1.png)
+#### GET /? 查询ES版本信息
+![](../png/kibana2.png)
+#### 创建一个pod
+```yaml
+# demo.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: robot #记住这个Pod名称
+spec:
+  containers:
+  - name: robot
+    image: debian
+    imagePullPolicy: Always
+    command: ["/bin/sh", "-c", "while true; do date && echo Welcome to JDCLOUD! && sleep 5;done"]  # 循环打印日志
+```
+
+```bash
+$ kubectl create -f demo.yaml
+
+$ kubectl get po
+NAME    READY   STATUS    RESTARTS   AGE
+robot   1/1     Running   0          3h37m
+```
+
+#### 回到kibana页面搜索robot日志
+```
+GET logstash-2021.02.25/_search  #说明:这里logstash-xxxx.xx.xx 是已经创建好的index索引,调整到我们当天日期即可
+{
+  "query": {
+    "match": {
+      "kubernetes.pod_name": "robot" # 这里代表查看刚才创建的pod的日志
+    }
+  }
+}
+```
+**成功**
+![](../png/kibana3.png)
