@@ -114,6 +114,7 @@ $ helm uninstall nfs-storage -n logs
 # 4.利用helm安装elasticsearch
 > 参考:https://blog.csdn.net/qq_28540443/article/details/106428346
 
+#### 下载Charts源并修改配置
 ```bash
 # 直接从本git库中下载charts,如需获取最新版请自行调用helm pull elasticsearch
 $ cd /opt && wget https://github.com/Joker1222/Personal-k8s-cfg/raw/main/k8s_efk/elasticsearch.tgz
@@ -153,25 +154,28 @@ service:
   loadBalancerSourceRanges: []
   externalTrafficPolicy: ""
 ...
+```
+#### 安装
+```bash
+$ cd /opt && helm install elasticsearch elasticsearch -n logs   # 可能需要等待一会
+```
 
-$ cd /opt && helm install elasticsearch elasticsearch -n logs
-
-...
-可能需要等待一会 es状态变成running
-...
-
-$ kubectl get po -n logs -o wide                                # 查看节点所在节点位置
+#### 检查
+```bash
+# 查看节点所在节点位置
+$ kubectl get po -n logs -o wide                                
 NAME                                                  READY   STATUS    RESTARTS   AGE    IP             NODE    NOMINATED NODE   READINESS GATES
 elasticsearch-master-0                                1/1     Running   0          153m   10.233.90.17   node1   <none>           <none>
 nfs-storage-nfs-client-provisioner-75959887d5-5gc7b   1/1     Running   0          16h    10.233.90.16   node1   <none>           <none>
 
-$ kubectl get svc -n logs                                       # 查看svc端口
+# 查看svc端口
+$ kubectl get svc -n logs                                       
 NAME                            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                         AGE
 elasticsearch-master            NodePort    10.233.9.3      <none>        9200:30920/TCP,9300:31486/TCP   154m
 elasticsearch-master-headless   ClusterIP   None            <none>        9200/TCP,9300/TCP               154m
 
-# 可以看到es在node1节点,对外暴露的端口是30920,我们可以curl测试下能否访问
-$ curl 10.94.22.54:30920                                        # 注:别忘了这里换成你的node节点IP
+# 可以看到es在node1节点,对外暴露的端口是30920,我们可以curl测试下能否访问 注:别忘了换成你的node节点IP
+$ curl 10.94.22.54:30920                                        
 {
   "name" : "elasticsearch-master-0",
   "cluster_name" : "elasticsearch",
@@ -190,4 +194,9 @@ $ curl 10.94.22.54:30920                                        # 注:别忘了�
   "tagline" : "You Know, for Search"
 }
 ```
+#### 一键卸载(如有需要)
+```bash
+$ helm uninstall elasticsearch -n logs
+```
 
+# 5.利用helm部署flunetd
