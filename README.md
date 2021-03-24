@@ -1,2 +1,6 @@
 # Personal-k8s-cfg
-快速搭建kubernetes集群、harbor仓库、EFK日志系统的部署手册!
+> kubenetes常用工具链部署手册
+1.harbor
+2.efk
+3.nfs+storageClass -> pvc
+4.kubesphere
