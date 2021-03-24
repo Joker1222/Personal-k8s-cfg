@@ -208,7 +208,7 @@ spec:
       - "/bin/sh"
     args:
       - "-c"
-      - "mkdir -p /opt/nfs/pod-name-12345 && touch /opt/nfs/pod-name-12345/SUCCESS && exit 0 || exit 1"   #创建一个SUCCESS文件后退出
+      - "mkdir -p /data/nfs/pod-name-12345 && touch /data/nfs/pod-name-12345/SUCCESS && exit 0 || exit 1"   #创建一个SUCCESS文件后退出
     volumeMounts:
       - name: nfs-pvc
         mountPath: "/data/nfs" # 挂载路径与nfs-pv.yaml中的 nfs-client-root路径一致
