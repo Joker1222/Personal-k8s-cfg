@@ -1,0 +1,21 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: pod-name-12346
+spec:
+  containers:
+  - name: pod-name-12346 
+    image: busybox:1.24
+    command:
+      - "/bin/sh"
+    args:
+      - "-c"
+      - "mkdir -p /opt/nfs/pod-name-12346 && touch /opt/nfs/pod-name-12345/SUCCESS && exit 0 || exit 1"   #创建一个SUCCESS文件后退出
+    volumeMounts:
+      - name: nfs-pvc
+        mountPath: "/opt/nfs" # 挂载路径与nfs-pv.yaml中的 nfs-client-root路径一致
+  restartPolicy: "Never"
+  volumes:
+    - name: nfs-pvc
+      persistentVolumeClaim:
+        claimName: test-claim #与PVC名称保持一致
