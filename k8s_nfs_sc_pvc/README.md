@@ -162,12 +162,12 @@ spec:
             - name: NFS_SERVER
               value: 10.94.22.240   #NFS Server IP地址 server master节点的地址 换成你的主节点IP即可
             - name: NFS_PATH   
-              value: /opt/nfs    #NFS挂载卷 server路径 换成你的服务器路径即可
+              value: /data/nfs    #NFS挂载卷 server路径 换成你的服务器路径即可
       volumes:
         - name: nfs-client-root
           nfs:
             server: 10.94.22.240  #NFS Server IP地址
-            path: /opt/nfs #NFS 挂载卷 client路径 (pod) 换成你的client路径即可
+            path: /data/nfs #NFS 挂载卷 client路径 (pod) 换成你的client路径即可
 ```
 ```bash
 $ kubectl apply -f nfs-pv.yaml
@@ -211,7 +211,7 @@ spec:
       - "mkdir -p /opt/nfs/pod-name-12345 && touch /opt/nfs/pod-name-12345/SUCCESS && exit 0 || exit 1"   #创建一个SUCCESS文件后退出
     volumeMounts:
       - name: nfs-pvc
-        mountPath: "/opt/nfs" # 挂载路径与nfs-pv.yaml中的 nfs-client-root路径一致
+        mountPath: "/data/nfs" # 挂载路径与nfs-pv.yaml中的 nfs-client-root路径一致
   restartPolicy: "Never"
   volumes:
     - name: nfs-pvc
