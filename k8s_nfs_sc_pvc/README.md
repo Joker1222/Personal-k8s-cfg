@@ -2,7 +2,7 @@
 > 参考文档:https://www.cnblogs.com/panwenbin-logs/p/12196286.html
 > 本文只做操作步骤备份，原理参考官方文档即可
 
-前提:kubenetes集群已经安装好<br><br>
+前提:kubenetes集群已经安装好<br>
 
 ### 1.安装NFS-Server(所有节点必须安装,如果已经装过可以跳过这步)
 ```bash
