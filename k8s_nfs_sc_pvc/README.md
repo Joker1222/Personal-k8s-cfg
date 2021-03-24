@@ -25,7 +25,7 @@ $ mkdir -p /data/nfs                                        # 创建共享目录
 $ mount -n -o nolock 10.94.22.240:/data/nfs/ /data/nfs/     # 挂载(注:可以设置你自己的MasterIP和共享路径)
 $ df -h                                                     # 查看是否挂载成功
 Filesystem                       Size  Used Avail Use% Mounted on
-10.94.22.240:/opt/nfs/logs-e...  111G   20G   86G  19% /var/lib/kubelet/...
+10.94.22.240:/data/nfs/logs-e...  111G   20G   86G  19% /var/lib/kubelet/...
 $ cd /data/nfs/ && touch test.txt                           # 创建文件测试是否共享成功，此时回到master节点执行ls /data/nfs/应该能看到test.txt
 ```
 
