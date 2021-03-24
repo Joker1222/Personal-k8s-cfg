@@ -10,7 +10,7 @@
 ```
 
 ### 2.创建rbac
-> $ wget  
+> wget https://raw.githubusercontent.com/Joker1222/Personal-k8s-cfg/main/k8s_nfs_sc_pvc/rbac.yaml
 ```yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -82,7 +82,7 @@ $ kubectl apply -f rbac.yaml
 ```
 
 ### 3.创建StorageClass
-> $ wget 
+> wget https://raw.githubusercontent.com/Joker1222/Personal-k8s-cfg/main/k8s_nfs_sc_pvc/nfs-sc.yaml 
 ```yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -98,7 +98,7 @@ $ kubectl apply -f nfs-sc.yaml
 ```
 
 ### 4.创建nfs-client-provisioner(Deployment)
-> $ wget 
+> wget https://raw.githubusercontent.com/Joker1222/Personal-k8s-cfg/main/k8s_nfs_sc_pvc/nfs-pv.yaml
 ```yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -154,7 +154,7 @@ $ kubectl apply -f nfs-pv.yaml
 ```
 
 ### 5.创建PVC
-> $ wget 
+> wget https://raw.githubusercontent.com/Joker1222/Personal-k8s-cfg/main/k8s_nfs_sc_pvc/test-claim.yaml 
 ```yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -174,7 +174,7 @@ $ kubectl apply -f test-claim.yaml
 ```
 
 ### 6.创建Pod测试
-> $ wget 
+> wget https://raw.githubusercontent.com/Joker1222/Personal-k8s-cfg/main/k8s_nfs_sc_pvc/test-pod.yaml 
 ```yaml
 kind: Pod
 apiVersion: v1
